@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>chat</title>
+</head>
+<body>
+<button onclick="createChatRoom()">채팅방 만들기</button>
+<div id="chat-room-container">
+
+</div>
+<script>
+    const socket = new WebSocket("ws://localhost:8080/ws/chat");
+    let chatRooms = [];
+    const chatRoomContainer = document.getElementById("chat-room-container");
+    socket.onopen = ()=>{
+        console.log("websocket connected");
+        getChatRoomInfo();
+    }
+
+    socket.onmessage = (event)=>{
+        console.log("message : ", event.data);
+        const message = JSON.parse(event.data);
+        console.log("type : ",message.type);
+        switch(message.type){
+            case "INFO" : updateChatRoom(message.payload); break;
+        }
+    }
+
+    function createChatRoom(){
+        const message = createMessage("CREATE", 0, null, null, null);
+        socket.send(message);
+    }
+    function getChatRoomInfo(){
+        const message = createMessage("INFO",0,null,null,null);
+        socket.send(message);
+    }
+    function updateChatRoom(chatRoomData){
+        const createdChatRooms = chatRoomData.filter(chatRoom => !chatRooms.includes(chatRoom));
+        const deletedChatRooms = chatRooms.filter(chatRoom => !chatRoomData.includes(chatRoom));
+        deletedChatRooms.forEach(chatRoom => {
+            chatRoomContainer.removeChild(document.getElementById("chat-room-"+chatRoom));
+        });
+        createdChatRooms.forEach(chatRoom => {
+            chatRoomContainer.innerHTML += `
+                <div id="chat-room-${chatRoom}">
+                    채팅방 ${chatRoom} <button onclick="enterChatRoom(${chatRoom})">입장하기</button>
+                </div>
+            `
+        })
+        chatRooms = chatRoomData;
+    }
+    function createMessage(type, chatRoomId, sender, message, sentAt){
+        return JSON.stringify({
+            type: type,
+            payload: {
+                chatRoomId: chatRoomId,
+                sender: sender,
+                message: message,
+                sentAt: sentAt
+            }
+        })
+    }
+    function enterChatRoom(chatRoomId){
+        location.href = (`/chat/${chatRoomId}`);
+    }
+    window.onbeforeunload = () => {
+        socket.close();
+    };
+</script>
+</body>
+</html>
