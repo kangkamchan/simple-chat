@@ -3,7 +3,7 @@
 - 저처럼 Spring WebSocket 을 처음 학습하는 분들께서 참고하면 좋을 것 같습니다.
 
 # 구동 모습
-- 최소한의 기능 구현만 확인할 수 있습니다.
+- 로컬 환경에서 브라우저 2개를 동시에 사용한 모습으로, 최소한의 기능 구현만 확인할 수 있습니다.
 ![chat_demo](https://github.com/user-attachments/assets/00d9c161-4b44-42e9-b420-bfbdc0e64009)
 
 # 개발 환경
